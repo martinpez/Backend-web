@@ -1,0 +1,34 @@
+
+
+const express = require("express");
+const conectarDB = require("./config/db");
+const RoutesUsuario = require("./routers/RoutesUsuario");
+const auth = require("./routers/auth");
+const categoriasRouters = require("./routers/categoriasRouters");
+const productosRouters = require("./routers/productosRouters");
+const cors = require("cors");
+
+const app = express();
+app.use(express.json({extended: true}));
+
+
+
+
+conectarDB();
+//habilitar cors
+
+app.use(cors());
+
+
+
+//rutas
+app.use("/api/usuarios", RoutesUsuario);
+app.use("/api/auth", auth );
+app.use("/api/categorias", categoriasRouters);
+app.use("/api/productos", productosRouters);
+
+
+
+app.listen(4000, () =>{
+    console.log("run 4000")
+});
