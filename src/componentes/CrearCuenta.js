@@ -1,17 +1,26 @@
 import React, { useState } from "react";
-import swal from "sweetalert";
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 import crud from '../conexiones/crud';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+
+
+
+
 
 const CrearCuenta = () => {
+
+
   const navegate = useNavigate();
+  const Swaler = withReactContent(Swal)
 
 
   const [usuario, setUsuario] = useState({
     nombre: '',
     email: '',
     password: '',
-    confirmar: ''
+    confirmar: '',
+
   });
 
   const { nombre, email, password, confirmar } = usuario;
@@ -21,53 +30,88 @@ const CrearCuenta = () => {
   const onChange = (e) => {
 
     setUsuario({
+
       ...usuario,
       [e.target.name]: e.target.value
     })
 
   };
 
+
   const CrearCuenta = async () => {
     // los dos password deben ser iguales
 
-    if (password !== confirmar) {
+
+
+
+    if (usuario.password === "") {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Empty spaces',
+        footer: 'Pless ,Try again'
+      })
+    } else if (confirmar !== password) {
       // console.log ("diferentes")
       const mensaje = "Passwords do not match";
-      swal({
+      Swaler.fire({
         icon: 'error',
         title: 'Oooh...',
         text: mensaje,
       })
-    } else {
 
+
+    } else {
       const data = {
         nombre: usuario.nombre,
         email: usuario.email,
-        password: usuario.password
+        password: usuario.password,
 
       }
 
-      //console.log(data);
+
+     // console.log(data);
       const response = await crud.POST(`/api/usuarios`, data);
       const mensaje = response.msg;
-      // console.log(mensaje);
+      //console.log(mensaje);
 
-      if (mensaje) {
-        // const mensaje_creacionCuenta = "The user '" + email + "' already exists, please check with one that does not exist";
-        swal({
+      if (mensaje === "El usuario Ya existe") {
+        const mensaje_creacionCuenta = "The user '" + email + "' already exists, please check with one that does not exist";
+        Swaler.fire({
           icon: 'error',
           title: 'Oops...',
-          text: 'Something went wrong!',
+          text: mensaje_creacionCuenta,
 
         })
 
-      } else {
-        swal({
-          position: 'top-end',
-          icon: 'success',
-          title: 'Your work has been saved',
+      } else if (mensaje === " campos vacios") {
+        const mensaje_campos = "fields cannot be empty";
+        Swaler.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: mensaje_campos,
 
-          timer: 1500
+        })
+
+
+
+      }
+      else {
+        const Toast = Swaler.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swaler.stopTimer)
+            toast.addEventListener('mouseleave', Swaler.resumeTimer)
+          }
+        })
+
+        Toast.fire({
+          icon: 'success',
+          title: 'Account successfully created'
         })
 
 
@@ -86,7 +130,7 @@ const CrearCuenta = () => {
         nombre: '',
         email: '',
         password: '',
-        confirmar: ''
+        confirmar: '',
 
       })
 
@@ -109,26 +153,33 @@ const CrearCuenta = () => {
 
   return (
     <main>
-      <div className="bg-white px-2 sm:px-4 py-2.5 dark:bg-gray-900 fixed w-full z-20 top-0 left-0 border-b border-gray-200 dark:border-gray-600">
+     <nav class="bg-white px-2 sm:px-4 py-2.5 dark:bg-gray-50 fixed w-full z-20 top-0 left-0 border-b border-gray-200 dark:border-gray-600">
+        <div class="container flex flex-wrap items-center justify-between mx-auto">
+          <a href="/" class="flex items-center ">
+            <img src="https://store-images.s-microsoft.com/image/apps.30365.9007199267045543.ca3d4293-db3f-4263-9eb8-b8bf57f6e1c7.d2082de4-8b22-4e73-bc1e-c1763cc8e8e3?mode=scale&q=90&h=300&w=300 " class="h-6 mr-3 sm:h-9"></img>
+            <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-slate-500">Ecomerce</span>
+          </a>
+          
 
-        <a href="/login">
-          <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Home</button>
-        </a>
-      </div>
+  
+      
+    </div>
 
-      <div className="container mx-auto mt-5 p-20 flex md:justify-center">
+</nav>
+
+      <div className="container mx-auto mt-5  p-20 flex md:justify-center">
         <div className="md:w-2/3 lg:w-2/5" >
-          <h1 class=" mb-4 text-xl font-medium text-gray-900 dark:text-white hover:text-violet-400 ">Create Account</h1>
+          <h1 class=" mb-4 self-center font-black  text-xl  text-neutral-900 dark:text-white hover:text-neutral-400  ">Create Account</h1>
 
           <form
             onSubmit={onSubmit}
-            className="z-20 top-0 left-0 md:items-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 to-gray-600 bg-gradient-to-r md:items-center my-10 p-10 rounded-xl hover:bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 to-gray-600 bg-gradient-to-r"
+            className="md:items-center my-10 p-10 rounded-xl bg-gray-800 hover:bg-gray-700"
           >
             <div>
               <label className=" block mb-2 text-sm font-medium text-gray-900 dark:text-white" >Your Name</label>
 
               <input
-                placeholder="Enter your full name"
+                placeholder="name@company.com"
                 value={nombre}
                 onChange={onChange}
                 type="nombre"
@@ -182,30 +233,36 @@ const CrearCuenta = () => {
                 <input
                   type="submit"
                   value="  Create Account"
-                  className=" bg-gray-900 mb-5 py-4 cursor-pointer w-full  text-white uppercase font-bold rounded-2xl hover:bg-[conic-gradient(at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-gray-600 to-gray-900" />
+                  className=" bg-gray-900 px-5 py-2.5 cursor-pointer w-full text-white uppercase font-bold rounded-lg hover:bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-sky-400 via-rose-400 to-lime-400" />
               </div>
-              <a
-                href="/"
-                className=" flex mt-2 text-lg text-red-900 hover:underline hover:text-slate-900  "
-              >
-                Go Back
-              </a>
+              <div class="flex items-start">
+                <div class="flex items-center h-5">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-600 dark:border-gray-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
+                </div>
+                <label for="remember" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-50">I agree to the Terms and Conditions</label>
+
+              </div>
+
+
+
             </div>
           </form>
         </div>
       </div>
 
 
-      <div className="flex flex-nowrap">
-        <div className=" bg-slate-900 p-10 text-slate-50 w-1/2 ">
+      <div className="flex flex-nowrap mb-5 md:mb-0 ">
+        <div className=" bg-slate-200  p-10 text-slate-50 w-full ">
 
 
-          <h2 className="text-lg text-white w-2">CONTACT </h2>
-          <hr></hr>
+          <h2 className="self-center text-xl font-semibold whitespace-nowrap dark:text-gray-900">CONTACT </h2>
+          <hr className=" border-slate-700 "></hr>
 
           <ul className="list-disc">
-            <li className=" mt-2">
-              <p className=" text-lx font-light text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">
+            <li className=" mt-2 mb-5 md:mb-0">
+              <p className=" block py-2 pl-3 pr-4 text-neutral-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">
                 <a
                   href="https://www.facebook.com/"
                   className=""
@@ -216,7 +273,7 @@ const CrearCuenta = () => {
 
             </li>
             <li className=" mt-2">
-              <p className=" text-lx text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">
+              <p className=" block py-2 pl-3 pr-4 text-neutral-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">
                 <a
                   href="https://mail.google.com/mail/u/0/?pli=1#inbox/"
                   className=""
@@ -224,14 +281,7 @@ const CrearCuenta = () => {
                   Email
                 </a></p>
             </li>
-            <li className=" mt-2"><p className=" text-lx text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">
-              <a
-                href="https://twitter.com/?lang=es"
-                className=""
-              >
-                Facebook
-              </a></p></li>
-              <li className=" mt-2"><p className=" text-lx  text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">
+            <li className=" mt-2"><p className=" block py-2 pl-3 pr-4 text-neutral-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">
               <a
                 href="https://github.com/martinpez"
                 className=""
@@ -240,21 +290,17 @@ const CrearCuenta = () => {
               </a></p></li>
           </ul>
 
-          <hr></hr>
-          <h6 className=" mt-5 text-xs"> @Martin Elias</h6>
-          <h6 className=" mt-2 text-xs"> Copyright © 2022 - Martin Perez.</h6>
-
+          <hr className=" border-slate-700 mt-6"></hr>
+          <h6 className="mb-5 md:mb-0 mt-5 text-xs text-cyan-900 "> @Martin Elias</h6>
+          <h6 className="mb-5 md:mb-0 mt-2 text-xs text-cyan-900"> Copyright © 2022 - Martin Perez.</h6>
+          <br></br>
+           
         </div>
-        <div className="bg-slate-900 p-10 text-slate-50 w-1/2">
+        
 
 
-
-
-
-        </div>
-
+     
       </div>
-
 
 
     </main>
