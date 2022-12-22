@@ -1,13 +1,29 @@
 const Productos = require("../models/Productos");
 
+exports.obtenerHomeProducto = async (req , res) => {
+    try {
+        // find para un tiempo de respueta o pregunta y respuesta a la base de datos
+        // creador : para ver solo la categoria que nesesita el usuario
+        const productos = await Productos.find();
 
+
+        res.json({ productos });
+
+
+    } catch (error) {
+        res.status(400).json({ mgs: "Hubo un error" });
+        console.log(error);
+    };
+
+};
 
 exports.obtenerProducto = async (req , res) => {
     try{
 
-        const productos = await Productos.find({creador: req.usuario.id});
-
-        res.json({productos});
+        const { id } = req.params
+        const producto = await Productos.find().where("categoriaId").equals(id); // filtrar por  la categoria id para mostara los porductos con el where
+        res.json(producto)
+  
 
 
 
@@ -21,9 +37,11 @@ exports.obtenerProducto = async (req , res) => {
 exports.crearProducto = async (req , res) => {
   try{
 
+   
+
     const productos = new Productos (req.body);
 
-    productos.categoriaId = req.usuario.id;
+    
 
     productos.save(); 
 
@@ -32,6 +50,7 @@ exports.crearProducto = async (req , res) => {
 
 
   }catch(error){
+     
         res.status(400).json({mgs:"hubo un error"})
         console.log(error);
   }

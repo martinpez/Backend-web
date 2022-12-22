@@ -12,6 +12,7 @@ exports.auntenticarUsuarios = async (req, res) => {
         //revisar que sea un usuario registrado
         let usuario = await Usuarios.findOne({ email });
 
+
         if (!usuario) {
            // console.log("el usuario no existe")
             return res.status(404).json({ msg: "el usuario no existe" });
